@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeetWise - Smart Meeting Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">M</div>
+      <div>
+        <h1>MeetWise</h1>
+        <p>Smart Meeting Manager</p>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-btn active" data-page="dashboard">🏠 <span>Dashboard</span></button>
+      <button class="nav-btn" data-page="meetings">📅 <span>Meetings</span></button>
+      <button class="nav-btn" data-page="invitations">✉️ <span>Invitations</span></button>
+      <button class="nav-btn" data-page="recommend">🧠 <span>Platform Finder</span></button>
+      <button class="nav-btn" data-page="community">👥 <span>Community</span></button>
+      <button class="nav-btn" data-page="profile">👤 <span>Profile</span></button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="themeToggle" class="ghost-btn">🌙 Dark Mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h2 id="pageTitle">Dashboard</h2>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="notificationBtn" title="Notifications">🔔</button>
+        <div class="avatar" id="headerAvatar">J</div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="dashboard">
+      <div class="hero-card">
+        <div>
+          <p class="eyebrow">Your meetings, simplified</p>
+          <h2>Plan smarter. Meet better.</h2>
+          <p>Create meetings, manage invitations, find the best platform and stay connected with your community.</p>
+          <button class="primary-btn" data-jump="meetings">+ Create Meeting</button>
+        </div>
+        <div class="hero-illustration">📆</div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-icon purple">📅</div>
+          <div><p>Upcoming Meetings</p><h3 id="statMeetings">0</h3></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon blue">✉️</div>
+          <div><p>Pending Invitations</p><h3 id="statInvites">0</h3></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon green">👥</div>
+          <div><p>Communities</p><h3 id="statCommunities">0</h3></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon orange">🧠</div>
+          <div><p>Platform Preference</p><h3 id="statPlatform">—</h3></div>
+        </article>
+      </div>
+
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">Schedule</p><h3>Upcoming Meetings</h3></div>
+            <button class="text-btn" data-jump="meetings">View all</button>
+          </div>
+          <div id="dashboardMeetings" class="list-container empty-state">No upcoming meetings yet.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">Quick actions</p><h3>Get things done</h3></div>
+          </div>
+          <div class="quick-grid">
+            <button class="quick-action" data-jump="meetings"><span>➕</span>Create meeting</button>
+            <button class="quick-action" data-jump="recommend"><span>🧠</span>Find platform</button>
+            <button class="quick-action" data-jump="invitations"><span>✉️</span>Check invites</button>
+            <button class="quick-action" data-jump="community"><span>👥</span>Community</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- MEETINGS -->
+    <section class="page" id="meetings">
+      <div class="section-bar">
+        <div>
+          <p class="eyebrow">Meeting management</p>
+          <h3>Create & manage meetings</h3>
+        </div>
+        <button class="primary-btn" id="openMeetingModal">+ New Meeting</button>
+      </div>
+
+      <div class="filter-row">
+        <input id="meetingSearch" class="search-input" type="search" placeholder="Search meetings...">
+        <select id="meetingFilter">
+          <option value="all">All meetings</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+
+      <div id="meetingCards" class="card-grid"></div>
+    </section>
+
+    <!-- INVITATIONS -->
+    <section class="page" id="invitations">
+      <div class="section-bar">
+        <div>
+          <p class="eyebrow">Meeting responses</p>
+          <h3>Your invitations</h3>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-invite-filter="pending">Pending</button>
+        <button class="tab" data-invite-filter="accepted">Accepted</button>
+        <button class="tab" data-invite-filter="declined">Declined</button>
+      </div>
+
+      <div id="invitationList" class="stack-list"></div>
+    </section>
+
+    <!-- RECOMMENDER -->
+    <section class="page" id="recommend">
+      <div class="recommend-layout">
+        <div class="panel recommender-panel">
+          <p class="eyebrow">Smart recommendation</p>
+          <h3>Which meeting platform suits you?</h3>
+          <p class="muted">Answer four quick questions and MeetWise will suggest a platform.</p>
+
+          <form id="platformForm" class="questionnaire">
+            <label>
+              Number of participants
+              <select name="participants" required>
+                <option value="">Choose...</option>
+                <option value="small">2 - 10</option>
+                <option value="medium">11 - 50</option>
+                <option value="large">51+</option>
+              </select>
+            </label>
+
+            <label>
+              Main purpose
+              <select name="purpose" required>
+                <option value="">Choose...</option>
+                <option value="casual">Casual / student discussion</option>
+                <option value="presentation">Presentation / class</option>
+                <option value="professional">Professional / formal meeting</option>
+              </select>
+            </label>
+
+            <label>
+              Most important feature
+              <select name="feature" required>
+                <option value="">Choose...</option>
+                <option value="easy">Easy to join</option>
+                <option value="recording">Recording</option>
+                <option value="collaboration">Collaboration tools</option>
+              </select>
+            </label>
+
+            <label>
+              Expected duration
+              <select name="duration" required>
+                <option value="">Choose...</option>
+                <option value="short">Under 40 minutes</option>
+                <option value="medium">40 - 60 minutes</option>
+                <option value="long">More than 60 minutes</option>
+              </select>
+            </label>
+
+            <button class="primary-btn" type="submit">Get Recommendation</button>
+          </form>
+        </div>
+
+        <div id="recommendationResult" class="recommend-result">
+          <div class="result-placeholder">🧠</div>
+          <h3>Your recommendation will appear here</h3>
+          <p>We compare ease of use, collaboration, participant size and meeting style.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="page" id="community">
+      <div class="section-bar">
+        <div>
+          <p class="eyebrow">Social space</p>
+          <h3>Your communities</h3>
+        </div>
+        <button class="primary-btn" id="openCommunityModal">+ Create Community</button>
+      </div>
+
+      <div class="suggestion-banner">
+        <div>
+          <p class="eyebrow">Suggested for you</p>
+          <h3>Study Circle</h3>
+          <p>You frequently meet with the same classmates. Create a community to organize meetings and events together.</p>
+        </div>
+        <button class="secondary-btn" id="joinSuggested">Join Community</button>
+      </div>
+
+      <div id="communityCards" class="card-grid"></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="page" id="profile">
+      <div class="profile-layout">
+        <section class="panel profile-card">
+          <div class="large-avatar" id="profileAvatar">J</div>
+          <h3 id="profileDisplayName">Jessa</h3>
+          <p class="muted">MeetWise member</p>
+          <div class="mini-stats">
+            <div><strong id="profileMeetingCount">0</strong><span>Meetings</span></div>
+            <div><strong id="profileCommunityCount">0</strong><span>Communities</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <p class="eyebrow">Account</p>
+          <h3>Personalize your profile</h3>
+          <form id="profileForm" class="profile-form">
+            <label>Name<input type="text" name="name" required></label>
+            <label>Email<input type="email" name="email" required></label>
+            <label>Department<input type="text" name="department" placeholder="Computer Science"></label>
+            <label>Preferred platform
+              <select name="platform">
+                <option value="">No preference</option>
+                <option>Google Meet</option>
+                <option>Zoom</option>
+                <option>Microsoft Teams</option>
+              </select>
+            </label>
+            <label class="check-row"><input type="checkbox" name="notifications"> Enable notifications</label>
+            <button class="primary-btn" type="submit">Save Changes</button>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Meeting Modal -->
+  <div class="modal-backdrop" id="meetingModal">
+    <div class="modal">
+      <div class="modal-head">
+        <div><p class="eyebrow">Schedule</p><h3 id="meetingModalTitle">Create meeting</h3></div>
+        <button class="close-btn" data-close="meetingModal">×</button>
+      </div>
+
+      <form id="meetingForm">
+        <input type="hidden" name="id">
+        <label>Meeting title<input type="text" name="title" placeholder="Project discussion" required></label>
+        <div class="form-two">
+          <label>Date<input type="date" name="date" required></label>
+          <label>Time<input type="time" name="time" required></label>
+        </div>
+        <div class="form-two">
+          <label>Duration
+            <select name="duration">
+              <option>30 minutes</option>
+              <option>45 minutes</option>
+              <option>1 hour</option>
+              <option>1.5 hours</option>
+              <option>2 hours</option>
+            </select>
+          </label>
+          <label>Platform
+            <select name="platform">
+              <option>Google Meet</option>
+              <option>Zoom</option>
+              <option>Microsoft Teams</option>
+              <option>In person</option>
+            </select>
+          </label>
+        </div>
+        <label>Participants (comma separated)<input type="text" name="participants" placeholder="Alex, Maya, Rahul"></label>
+        <label>Description<textarea name="description" rows="3" placeholder="What is this meeting about?"></textarea></label>
+        <button class="primary-btn full" type="submit">Save Meeting</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Community Modal -->
+  <div class="modal-backdrop" id="communityModal">
+    <div class="modal">
+      <div class="modal-head">
+        <div><p class="eyebrow">Connect</p><h3>Create community</h3></div>
+        <button class="close-btn" data-close="communityModal">×</button>
+      </div>
+      <form id="communityForm">
+        <label>Community name<input name="name" type="text" placeholder="Project Team" required></label>
+        <label>Description<textarea name="description" rows="3" placeholder="What is this community for?"></textarea></label>
+        <label>Next event<input name="event" type="text" placeholder="Friday study session"></label>
+        <button class="primary-btn full" type="submit">Create Community</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
